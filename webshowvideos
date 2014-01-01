@@ -1,0 +1,453 @@
+#!/usr/bin/perl
+
+use strict;
+#use String::Util 'trim';
+use constant false => 0;
+use constant true => 1;
+
+	my $homePage = "index.html";		# Home Page
+	my $topPage = "videos.html";		# The name of the top-level page
+	my $cols    = 4;				# Number of thumbnails per row
+	my $fileno  = 0;
+
+	#booleans for choosing output video types (to do)
+	my $allformats = true;
+	my $m4vformats = true;
+	my $ogvformats = true;
+	my $mp4formats = true;
+	my $webmformats = true;
+
+
+	my ($title, $page, $description, $copyright, $filename, $videoname, $nextname);
+	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos);
+	my ($wantOriginals, @lines);
+	my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+
+	# -----------------------------------------------------
+	# See if we need to do the 'originals' directory or not
+	# -----------------------------------------------------
+	$wantOriginals = 1;
+	while (($x = shift(@ARGV)) ne "") {
+		if ($x eq "-o") {
+			$wantOriginals = 0;
+			}
+		else {
+			$topPage = $x;
+			}
+		}
+
+	# ----------------------------------------
+	# Make sure the required directories exist
+	# ----------------------------------------
+	$x = 0;
+	$x += makeSure("vhtml");
+	$x += makeSure("images");
+	$x += makeSure("thumbsv");
+	$x += makeSure("originals") if ($wantOriginals);
+	exit if ($x);
+
+	open(FILE,"<videolist") or die "Can't open filelist\n";
+
+	# -----------------------------------------------
+	# First suck the filelist into an array, and join
+	# the continuation lines to the filename line
+	# -----------------------------------------------
+	while (<FILE>) {
+		chomp;
+		next if (/^#/);		# Ignore comment lines
+		next if (/^\s*$/);	# ...and blank lines too
+		if (/^\t/) {
+			$lines[$fileno-1] .= $_;
+			}
+		else {
+			$lines[$fileno++] = $_;
+			}
+		}
+	close(FILE);
+
+	# -------------------------------------------------
+	# Save the leading TITLE, DESCRIPTION and COPYRIGHT 
+	# lines as they get treated differently...
+	# -------------------------------------------------
+	while ($lines[0] =~ m|^\+|) {
+		if ($lines[0] =~ s/^\+title://i) {
+			$title = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ s/^\+description://i) {
+			$description = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ s/^\+copyright://i) {
+			$copyright = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ s/^\+toppage:\s*//i) {
+			$topPage = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ m|^\+|) {
+			# any other line starting with '+' gets processed
+			# along with the image filenames in the mail loop
+			last;
+			}
+		}
+	open(INDEX,">$topPage") or die "Can't open $topPage\n";
+
+	# ----------------------------------------------------------------
+	# Write the beginning bit of HTML for the top-level thumbnail page
+	# ----------------------------------------------------------------
+	print INDEX <<TOP;
+<!DOCTYPE html
+    >
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>$title</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS for the 'Heroic Features' Template -->
+    <link href="css/heroic-features.css" rel="stylesheet">
+
+    
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="$homePage">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="photos.html">Photos</a></li>
+            <li><a href="videos.html">Videos</a></li>
+            <li><a href="jwvideos.html">Videoplayer</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+    
+
+<div class="container">
+
+       <div class="row">
+        <div class="col-lg-12">
+           <h3> $title </h3>
+           <p> $description </p>
+        </div>
+      </div><!-- /.row -->
+      
+          
+      <!--row-->
+       
+      <div class="row text-center">
+    
+TOP
+
+	# ----------------------------------------------
+	# Now write the HTML for each thumbnail and link,
+	# treating the first and last specially so they
+	# won't have 'dead' backward/forward buttons.
+	# ----------------------------------------------
+	$num = 0;
+	$photos = 0;
+	$first = 1;
+	for ($x = 0; $x < $fileno; ++$x) {
+		($videoname,$filename,$description) = split(/\|/,$lines[$x]);
+		#print "$filename\n";	# UNCOMMENT TO SEE VISUAL PROGESS...
+        $filename =~ s/\s+$//;	# trim off trailing whitespace
+        $videoname =~ s/\s+$//;	# trim off trailing whitespace
+		$last  = ($x == ($fileno-1));
+		if ($filename =~ s/^\+section://i) {
+			# Generate a section header
+			while ($num % $cols) {
+				print INDEX "<td>\&nbsp;</td>\n";
+				++$num;
+				}
+			print INDEX qq(<tr><td colspan="$cols">\&nbsp;<p><h2>);
+			if ($description eq "") {
+				print INDEX qq($filename</h2></td></tr>\n);
+				}
+			else {
+				print INDEX qq($filename</h2>$description</td></tr>\n);
+				}
+			}
+		else {
+			process($videoname,$filename,$photos,$description,$title,$first,$last,$topPage);
+			$first = 0;
+			++$num;
+			$page = sprintf("vhtml/H%04d.html",$photos++);
+			print INDEX <<THUMBSTUFF;
+ 
+       
+
+        <div class="col-lg-3 col-md-6 hero-feature">
+<div class="thumbnail"
+<a href="$page">
+<img width="300" height="200" src="thumbsv/$filename" border=1>
+</a>
+<div class="caption">
+              
+              <p><a href="$page" class="btn btn-primary">Play(HTML5)</a>
+              <a href="videos/$videoname.m4v" class="btn btn-primary">Download</a></p>
+            </div>
+
+  
+          </div>
+        </div>
+
+
+
+THUMBSTUFF
+			if (($num % $cols) == 0) {
+				print INDEX "</div><div class=\"row text-center\">\n";
+				}
+			}
+		}
+
+	# --------------------------------------------
+	# Add the date to the bottom of the index page
+	# --------------------------------------------
+	($x,$x,$x,$mday,$mon,$year) = localtime(time);
+	$year += 1900;
+	#$mon++;
+	$mday = "0" . $mday if ($mday < 10);
+	$mon  = "0" . $mon if ($mon < 10);
+	$string = "$mday-$months[$mon]-$year";
+	#$string = "$mday/$mon/$year";
+
+	# ---------------------------------------------
+	# Write the final bit of HTML to the index page
+	# ---------------------------------------------
+	print INDEX "</div><div class=\"row text-center\"><p>\n";
+	print INDEX qq(<span class="sm">Video and Bootstrap version by Conor Gilmer <br> );
+	print INDEX qq(Based on Marc's );
+	print INDEX qq("<a target="_blank" href="http://www.micapeak.com/webshow">webshow</a>" );
+	print INDEX qq(Perl script v1.5 on $string<br>);
+	print INDEX qq(Tools used included<br>);
+	print INDEX qq(Files edited by <a target="_blank" href="http://www.vim.org">VIM</a><br> );
+	print INDEX qq(Images tweaked by <a target="_blank" href="http://www.gimp.org">GIMP</a><br> );
+	print INDEX qq(Images resized by <a target="_blank" href="http://photobatch.stani.be/">Phatch</a><br> );
+	print INDEX qq(Images resized by <a target="_blank" href="http://www.miroconverter.com/">MiroConverter</a><br> );
+	print INDEX qq($copyright\n</span></div>\n);
+	print INDEX "</body>\n</html>\n";
+	close(INDEX);
+
+	# ------------------------------------
+	# Sign off with an informative message
+	# ------------------------------------
+	if ($photos) {
+		print "$photos HTML files created (plus $topPage)\n";
+		}
+	else {
+		print "NO FILES CREATED (empty filelist?)\n";
+		}
+	1;
+
+
+# ========================================================
+#  Subroutine to write the Webpage in the html/ directory
+#  corresponding to the thumbnail on the index page.
+# ========================================================
+sub process($$$$$$$)
+{
+	my $videoname      = shift;
+	my $filename      = shift;
+	my $fileno        = shift;
+	my $description   = shift;
+	my $title         = shift;
+	my $first		  = shift;
+	my $last		  = shift;
+	my $top           = shift;
+	my $html          = sprintf("vhtml/H%04d.html",$fileno);
+	my $left          = sprintf("H%04d.html",$fileno-1);
+	my $right         = sprintf("H%04d.html",$fileno+1);
+	my ($orig1, $orig2);
+
+
+$videoname =~ s/\s+$//;	# trim off trailing whitespace
+my $videonamewebm = $videoname;
+$videonamewebm .= '.webmsd.webm';
+print $videonamewebm;
+my $videonamem4v = $videoname.'.m4v';
+my $videonameogv = $videoname.".ogv";
+
+	$top              = "../$top";
+	open(IMAGE,">$html") or die "Can't open $html\n";
+    if ($wantOriginals) {
+        #$orig1 = qq(<a href="../videos/$videoname">\n);
+        #$orig2 = qq(</a>\n);
+        }
+    else {
+        $orig1 = "";
+        $orig2 = "";
+        }                            
+	print IMAGE <<IMAGESTUFF;
+
+<!DOCTYPE html
+    >
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>$title -</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS for the 'Heroic Features' Template -->
+    <link href="../css/heroic-features.css" rel="stylesheet">
+
+    
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../$homePage">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../photos.html">Photos</a></li>
+            <li><a href="../videos.html">Videos</a></li>
+            <li><a href="../jwvideos.html">Videoplayer</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+    
+
+<div class="container">
+
+       <div class="row">
+        <div class="col-lg-12">
+           <h3> $title </h3>
+           <p> $description </p>
+        </div>
+      </div><!-- /.row -->
+      
+          
+      <!--row-->
+       
+      <div class="row text-center">
+    
+IMAGESTUFF
+	if (!$first) {
+		#print IMAGE qq(<a href="$left">);
+		print IMAGE qq(<div class="caption">    
+              <a href="$left" class="btn btn-primary">Previous</a>
+            );
+		} else {
+
+			print IMAGE qq(<div class="caption">  );
+        
+		}
+
+	#print IMAGE qq(<a href="$top">);
+	print IMAGE qq(
+              
+              <a href="$top" class="btn btn-primary">List</a>
+            );
+
+	if (!$last) {
+	#	print IMAGE qq(<a href="$right">);
+		print IMAGE qq(
+              
+              <a href="$right" class="btn btn-primary">Next</a>
+            </div>);
+		}
+		else {
+		print IMAGE qq(</div>); }
+
+	print IMAGE <<IMAGEREST;
+<p>
+$orig1
+
+ <video poster='../thumbsv/$filename' controls="">
+<!--source width='480' height='360' src='your_movie.ogv'  /-->
+<source  width='480' height='360' src='../videos/$videonamewebm' type='video/webm' />
+<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' />
+</video>
+$orig2
+<p>
+$description
+
+      <hr>
+</div>
+      <footer>
+        <!--<div class="row">
+          <div class="col-lg-12">-->
+          <div class="row text-center">
+            <p>$copyright</p>
+          </div>
+        <!--</div>-->
+      </footer>
+      
+    </div><!-- /.container -->
+
+  <!-- javascript -->
+  <script src="../js/jquery.js"></script>
+  <script src="../js/bootstrap.js"></script>
+
+  </body>
+
+</html>
+IMAGEREST
+	close(IMAGE);
+}
+
+sub makeSure($)
+{
+	my	$filename = shift;
+
+	if (! -e $filename) {
+		print "ERROR: directory $filename not found\n";
+		return(1);
+		}
+	if (! -d $filename) {
+		print "ERROR: $filename is not a directory\n";
+		return(1);
+		}
+	if ((! -w $filename) || (! -x $filename)) {
+		print "ERROR: directory $filename not writable and/or searchable\n";
+		return(1);
+		}
+	return(0);
+}
