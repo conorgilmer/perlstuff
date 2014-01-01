@@ -1,0 +1,19 @@
+# ---------------------
+# Example videolist file
+# rename videolist.txt videolist
+# use videoname minus the extension 
+# specify file type to us in the program
+# ---------------------
++TITLE: Titletext
++DESCRIPTION:Photographs .
+	<p>
+	Click on an image to start the show.  From there you can navigate
+	forwards, backwards, or back here.  When you click on an
+	image it will take you to a larger version.
++COPYRIGHT: Copyright © 2013.
+	All rights reserved.
+
+videoname1|Screenshot1.png | Great video
+videoname2|Screenshot2.png | Great video
+videoname3|Screenshot3.png | Great video
+videoname4|Screenshot4.png | Great video
