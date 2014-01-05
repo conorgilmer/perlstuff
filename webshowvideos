@@ -16,7 +16,7 @@ use constant true => 1;
 	my $ogvformats = true;
 	my $mp4formats = true;
 	my $webmformats = true;
-
+	my $formatshtml = "";
 
 	my ($title, $page, $description, $copyright, $filename, $videoname, $nextname);
 	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos);
@@ -292,9 +292,10 @@ sub process($$$$$$$)
 $videoname =~ s/\s+$//;	# trim off trailing whitespace
 my $videonamewebm = $videoname;
 $videonamewebm .= '.webmsd.webm';
-print $videonamewebm;
 my $videonamem4v = $videoname.'.m4v';
+my $videonamemp4 = $videoname.".mp4";
 my $videonameogv = $videoname.".ogv";
+#my $videonamewebm = $videoname.".webm";
 
 	$top              = "../$top";
 	open(IMAGE,">$html") or die "Can't open $html\n";
@@ -396,14 +397,42 @@ IMAGESTUFF
 		else {
 		print IMAGE qq(</div>); }
 
+# clear the variable formats
+$formatshtml = "";
+if ($allformats) {
+print "\n Its All \n";
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamewebm' type='video/webm' />\n"; 
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' />\n"; 
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonameogv' type='video/ogv' />\n"; 
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamemp4' type='video/mp4' />\n"; 
+ print $formatshtml . "\n";
+} else { 
+print "\n Not All \n";
+	if ($m4vformats) {
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' />\n"; 
+	}
+	if ($ogvformats) {
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonameogv' type='video/ogv' />\n"; 
+	}
+	if ($mp4formats) {
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamemp4' type='video/mp4' />\n"; 
+	}
+	if ($webmformats) {
+ $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamewebm' type='video/webm' />\n"; 
+	}
+}
+  
+
+# <!--source width='480' height='360' src='your_movie.ogv'  />
+#<source  width='480' height='360' src='../videos/$videonamewebm' type='video/webm' />
+#<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' /-->
+
 	print IMAGE <<IMAGEREST;
 <p>
 $orig1
 
  <video poster='../thumbsv/$filename' controls="">
-<!--source width='480' height='360' src='your_movie.ogv'  /-->
-<source  width='480' height='360' src='../videos/$videonamewebm' type='video/webm' />
-<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' />
+$formatshtml
 </video>
 $orig2
 <p>
