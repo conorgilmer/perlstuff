@@ -400,14 +400,11 @@ IMAGESTUFF
 # clear the variable formats
 $formatshtml = "";
 if ($allformats) {
-print "\n Its All \n";
  $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamewebm' type='video/webm' />\n"; 
  $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' />\n"; 
  $formatshtml .= "<source  width='480' height='360' src='../videos/$videonameogv' type='video/ogv' />\n"; 
  $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamemp4' type='video/mp4' />\n"; 
- print $formatshtml . "\n";
 } else { 
-print "\n Not All \n";
 	if ($m4vformats) {
  $formatshtml .= "<source  width='480' height='360' src='../videos/$videonamem4v' type='video/m4v' />\n"; 
 	}
