@@ -18,6 +18,8 @@ use constant true => 1;
 	my $webmformats = true;
 	my $formatshtml = "";
 
+	my $metricshtml = ""; #add Piwik or Google Analytics html here
+
 	my ($title, $page, $description, $copyright, $filename, $videoname, $nextname);
 	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos);
 	my ($wantOriginals, @lines);
@@ -254,6 +256,7 @@ THUMBSTUFF
 	print INDEX qq(Images resized by <a target="_blank" href="http://photobatch.stani.be/">Phatch</a><br> );
 	print INDEX qq(Images resized by <a target="_blank" href="http://www.miroconverter.com/">MiroConverter</a><br> );
 	print INDEX qq($copyright\n</span></div>\n);
+	print INDEX qq($metricshtml\n);
 	print INDEX "</body>\n</html>\n";
 	close(INDEX);
 
