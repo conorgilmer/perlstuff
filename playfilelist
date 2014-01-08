@@ -1,0 +1,20 @@
+# -------------------------
+# Example playfilelist file
+# -------------------------
++TITLE: Neil and Danielas Wedding
++DESCRIPTION:Videos .
+	<p>
+	Click on an image to start the show.  From there you can navigate
+	forwards, backwards, or back here.  When you click on an
+	image it will take you to a larger version.
++COPYRIGHT: Copyright © 2013.
+	All rights reserved.
+
+2013-06-29_14.31.10|Screenshot1.png|
+2013-06-29_18.36.36|Screenshot2.png|
+2013-06-29_20.44.44|Screenshot3.png|
+2013-06-30_00.18.08|Screenshot4.png|
+2013-06-30_00.59.16|Screenshot5.png|
+2013-06-30_01.04.18|Screenshot6.png|
+2013-06-30_01.06.26|Screenshot7.png|
+2013-06-30_01.27.40|Screenshot8.png|
