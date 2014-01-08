@@ -1,0 +1,329 @@
+#!/usr/bin/perl
+
+use strict;
+
+	my $topPage = "jindex.html";		# The name of the top-level page
+	my $fileno  = 0;
+
+	my ($title, $page, $description, $copyright, $filename, $nextname);
+	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos, $displaycomma);
+	my ($wantOriginals, @lines);
+	my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+
+	# -----------------------------------------------------
+	# See if we need to do the 'originals' directory or not
+	# -----------------------------------------------------
+	$wantOriginals = 1;
+	while (($x = shift(@ARGV)) ne "") {
+		if ($x eq "-o") {
+			$wantOriginals = 0;
+			}
+		else {
+			$topPage = $x;
+			}
+		}
+
+	# ----------------------------------------
+	# Make sure the required directories exist
+	# ----------------------------------------
+	$x = 0;
+	$x += makeSure("thumbsv");
+	exit if ($x);
+
+	open(FILE,"playfilelist") or die "Can't open filelist\n";
+	# -----------------------------------------------
+	# First suck the filelist into an array, and join
+	# the continuation lines to the filename line
+	# -----------------------------------------------
+	while (<FILE>) {
+		chomp;
+		next if (/^#/);		# Ignore comment lines
+		next if (/^\s*$/);	# ...and blank lines too
+		if (/^\t/) {
+			$lines[$fileno-1] .= $_;
+			}
+		else {
+			$lines[$fileno++] = $_;
+			}
+		}
+	close(FILE);
+
+	# -------------------------------------------------
+	# Save the leading TITLE, DESCRIPTION and COPYRIGHT 
+	# lines as they get treated differently...
+	# -------------------------------------------------
+	while ($lines[0] =~ m|^\+|) {
+		if ($lines[0] =~ s/^\+title://i) {
+			$title = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ s/^\+description://i) {
+			$description = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ s/^\+copyright://i) {
+			$copyright = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ s/^\+toppage:\s*//i) {
+			$topPage = $lines[0];
+			shift(@lines);
+			--$fileno;
+			next;
+			}
+		if ($lines[0] =~ m|^\+|) {
+			# any other line starting with '+' gets processed
+			# along with the image filenames in the mail loop
+			last;
+			}
+		}
+	open(INDEX,">$topPage") or die "Can't open $topPage\n";
+
+	# ----------------------------------------------------------------
+	# Write the beginning bit of HTML for the top-level thumbnail page
+	# ----------------------------------------------------------------
+	print INDEX <<TOP;
+   <!DOCTYPE html>
+<html>
+
+ <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+    <title> Neil and Danielas Wedding -</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS for the 'Heroic Features' Template -->
+    <link href="../css/heroic-features.css" rel="stylesheet">
+<link href="skin/blue.monday/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
+<script type="text/javascript" src="js/jplayer.playlist.min.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+\$(document).ready(function(){
+
+	new jPlayerPlaylist({
+		jPlayer: "#jquery_jplayer_1",
+		cssSelectorAncestor: "#jp_container_1"
+	}, [ 
+TOP
+
+	# ----------------------------------------------
+	# Now write the HTML for each thumbnail and link,
+	# treating the first and last specially so they
+	# won't have 'dead' backward/forward buttons.
+	# ----------------------------------------------
+	$num = 0;
+	$photos = 0;
+	$displaycomma = ",";
+	for ($x = 0; $x < $fileno; ++$x) {
+		($filename,$description) = split(/\|/,$lines[$x]);
+		#print "$filename\n";	# UNCOMMENT TO SEE VISUAL PROGESS...
+           $filename =~ s/\s+$//;	# trim off trailing whitespace
+		#print $x . " - " . $fileno. "\n";
+		if ($x == ($fileno-1)) {
+			$displaycomma = " "; 
+		} else {		
+			$displaycomma = ",";		
+		}
+		#	print INDEX qq($filename</h2>$description</td></tr>\n);
+			print INDEX <<THUMBSTUFF;
+
+			{
+			title:"Outside Church",
+			artist:"Neil and Daniela",
+			free:true,
+			m4v: "videos/$filename.m4v",
+			ogv: "videos/$filename.oggtheroa.ogv",
+			webmv: "videos/$filename.webmsd.webm",
+			poster:"thumbsv/$description"
+ 			}
+$displaycomma
+THUMBSTUFF
+		}
+
+
+
+
+	print INDEX <<MAINSTUFF;
+	], {
+		swfPath: "js",
+		supplied: "webmv, ogv, m4v",
+		smoothPlayBar: true,
+		keyEnabled: true
+	});
+
+});
+//]]>
+</script>
+</head>
+<body>
+
+
+
+    <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="photos.html">Photos</a></li>
+            <li><a href="videos.html">Videos</a></li>
+            <li><a href="jwvideos.html">Videoplayer(JW)</a></li>
+            <li><a href="jpvideos.html">Videoplayer(JPlayer)</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+    
+<div class="container">
+       <div class="row">
+        <div class="col-lg-12">
+           <h3>  Neil and Danielas Wedding </h3>
+           <p>  </p>
+        </div>
+      </div><!-- /.row -->
+      <!--row-->
+<!-- jplayer -->
+		<div id="jp_container_1" class="jp-video jp-video-270p">
+			<div class="jp-type-playlist">
+				<div id="jquery_jplayer_1" class="jp-jplayer"></div>
+				<div class="jp-gui">
+					<div class="jp-video-play">
+						<a href="javascript:;" class="jp-video-play-icon" tabindex="1">play</a>
+					</div>
+					<div class="jp-interface">
+						<div class="jp-progress">
+							<div class="jp-seek-bar">
+								<div class="jp-play-bar"></div>
+							</div>
+						</div>
+						<div class="jp-current-time"></div>
+						<div class="jp-duration"></div>
+						<div class="jp-controls-holder">
+							<ul class="jp-controls">
+								<li><a href="javascript:;" class="jp-previous" tabindex="1">previous</a></li>
+								<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+								<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+								<li><a href="javascript:;" class="jp-next" tabindex="1">next</a></li>
+								<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
+								<li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
+								<li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
+								<li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
+							</ul>
+							<div class="jp-volume-bar">
+								<div class="jp-volume-bar-value"></div>
+							</div>
+							<ul class="jp-toggles">
+								<li><a href="javascript:;" class="jp-full-screen" tabindex="1" title="full screen">full screen</a></li>
+								<li><a href="javascript:;" class="jp-restore-screen" tabindex="1" title="restore screen">restore screen</a></li>
+								<li><a href="javascript:;" class="jp-shuffle" tabindex="1" title="shuffle">shuffle</a></li>
+								<li><a href="javascript:;" class="jp-shuffle-off" tabindex="1" title="shuffle off">shuffle off</a></li>
+								<li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
+								<li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
+							</ul>
+						</div>
+						<div class="jp-title">
+							<ul>
+								<li></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="jp-playlist">
+					<ul>
+						<!-- The method Playlist.displayPlaylist() uses this unordered list -->
+						<li></li>
+					</ul>
+				</div>
+				<div class="jp-no-solution">
+					<span>Update Required</span>
+					To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
+				</div>
+			</div>
+		</div>
+<!-- end of row -->
+
+
+MAINSTUFF
+
+
+
+	# --------------------------------------------
+	# Add the date to the bottom of the index page
+	# --------------------------------------------
+	($x,$x,$x,$mday,$mon,$year) = localtime(time);
+	$year += 1900;
+	#$mon++;
+	$mday = "0" . $mday if ($mday < 10);
+	$mon  = "0" . $mon if ($mon < 10);
+	$string = "$mday-$months[$mon]-$year";
+	#$string = "$mday/$mon/$year";
+
+	# ---------------------------------------------
+	# Write the final bit of HTML to the index page
+	# ---------------------------------------------
+	print INDEX "<div class=\"row text-center\"><p>\n";
+	print INDEX qq(<span class="sm">Bootstrap and Video [JWPlayer and JPlayer] version by Conor Gilmer <br> );
+	print INDEX qq(Based on Marc's );
+	print INDEX qq("<a target="_blank" href="http://www.micapeak.com/webshow">webshow</a>" );
+	print INDEX qq(Perl script v1.5 on $string<br>);
+	print INDEX qq(Tools used included<br>);
+	print INDEX qq(Files edited by <a target="_blank" href="http://www.vim.org">VIM</a><br> );
+	print INDEX qq(Images tweaked by <a target="_blank" href="http://www.gimp.org">GIMP</a><br> );
+	print INDEX qq(Images resized by <a target="_blank" href="http://photobatch.stani.be/">Phatch</a><br> );
+	print INDEX qq(Images resized by <a target="_blank" href="http://www.mirovideoconverter.com//">Miro Video Converter</a><br> );
+	print INDEX qq($copyright\n</span></div>\n);
+	print INDEX "</body>\n</html>\n";
+	close(INDEX);
+
+	# ------------------------------------
+	# Sign off with an informative message
+	# ------------------------------------
+	if ($fileno > 0) {
+		print "$fileno videos in playlist created (plus $topPage)\n";
+		}
+	else {
+		print "NO PLAYLIST CREATED (empty filelist?)\n";
+		}
+	1;
+
+sub makeSure($)
+{
+	my	$filename = shift;
+
+	if (! -e $filename) {
+		print "ERROR: directory $filename not found\n";
+		return(1);
+		}
+	if (! -d $filename) {
+		print "ERROR: $filename is not a directory\n";
+		return(1);
+		}
+	if ((! -w $filename) || (! -x $filename)) {
+		print "ERROR: directory $filename not writable and/or searchable\n";
+		return(1);
+		}
+	return(0);
+}
