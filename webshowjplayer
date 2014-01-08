@@ -130,11 +130,10 @@ TOP
 	$displaycomma = ",";
 	for ($x = 0; $x < $fileno; ++$x) {
 		($filename,$description) = split(/\|/,$lines[$x]);
-		print "$filename\n";	# UNCOMMENT TO SEE VISUAL PROGESS...
+		#print "$filename\n";	# UNCOMMENT TO SEE VISUAL PROGESS...
            $filename =~ s/\s+$//;	# trim off trailing whitespace
-		print $x . " - " . $fileno. "\n";
+		#print $x . " - " . $fileno. "\n";
 		if ($x == ($fileno-1)) {
-			print "eq one \\n";
 			$displaycomma = " "; 
 		} else {		
 			$displaycomma = ",";		
@@ -302,11 +301,11 @@ MAINSTUFF
 	# ------------------------------------
 	# Sign off with an informative message
 	# ------------------------------------
-	if ($photos) {
-		print "$photos HTML files created (plus $topPage)\n";
+	if ($fileno > 0) {
+		print "$fileno videos in playlist created (plus $topPage)\n";
 		}
 	else {
-		print "NO FILES CREATED (empty filelist?)\n";
+		print "NO PLAYLIST CREATED (empty filelist?)\n";
 		}
 	1;
 
