@@ -4,9 +4,15 @@ based on webshow which generates the photo gallery, i have modified it to be a b
 I also have webshowvideos which generates a gallery of screenshots which should open a html5 player (browser dependent)
 I also have webshowjplayer and webshowjwplayer which generates a page from a filelist to play the videos in a page using the jplayer(www.jplayer.org) and jwplayer (www.jwplayer.com) from longtail
 
+You need bootstrap downloaded and stored in js and css directories
+You need the JPlayer downloaded and the skin you use
+You need the JWPlayer downloaded and stored on your server
 
 Todo
 ----
 Less hardcoding of the html...
 More configuration/conditionals to determine what you want in the menu items
 and specifying if you want mp4, ogv or webm formats
+use sections to break up video gallery into sections/categories
+modify videoscript to handle audio/podcasts
+modify videoscript  for players to handle youtube hosted videos
