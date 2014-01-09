@@ -1,4 +1,9 @@
 #!/usr/bin/perl
+# Imports details from playfilelist (same file is used for JWPlayer and JPlayer
+# Page Details - Title of page and description an footer copyright stmt
+# video details (filename without extension - have m4v, ogv and webm formats) 
+# a screenshot, Title of video, and Owner/Author of video
+
 
 use strict;
 
@@ -100,7 +105,7 @@ use strict;
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title> Neil and Danielas Wedding -</title>
+    <title> $title </title>
 
     <!-- Bootstrap core CSS -->
     <link href="../css/bootstrap.css" rel="stylesheet">
@@ -142,7 +147,7 @@ use strict;
 
        <div class="row">
         <div class="col-lg-12">
-           <h3>  Neil and Danielas Wedding </h3>
+           <h3>  $title </h3>
            <p>  </p>
         </div>
       </div><!-- /.row -->
@@ -244,14 +249,16 @@ MAINSTUFF
 	# ---------------------------------------------
 	print INDEX "<div class=\"row text-center\"><p>\n";
 	print INDEX qq(<span class="sm">Bootstrap and Video [JWPlayer and JPlayer] version by Conor Gilmer <br> );
+	print INDEX qq(<a target="_blank" href="http://www.getbootstrap.com">Bootstrap Used</a><br> );
+	print INDEX qq(<a target="_blank" href="http://www.jwplayer.com">JW Player Used</a> <br> );
 	print INDEX qq(Based on Marc's );
 	print INDEX qq("<a target="_blank" href="http://www.micapeak.com/webshow">webshow</a>" );
-	print INDEX qq(Perl script v1.5 on $string<br>);
+	print INDEX qq(Perl script v5.16.2 on $string<br>);
 	print INDEX qq(Tools used included<br>);
 	print INDEX qq(Files edited by <a target="_blank" href="http://www.vim.org">VIM</a><br> );
 	print INDEX qq(Images tweaked by <a target="_blank" href="http://www.gimp.org">GIMP</a><br> );
 	print INDEX qq(Images resized by <a target="_blank" href="http://photobatch.stani.be/">Phatch</a><br> );
-	print INDEX qq(Images resized by <a target="_blank" href="http://www.mirovideoconverter.com//">Miro Video Converter</a><br> );
+	print INDEX qq(Video format edited by <a target="_blank" href="http://www.mirovideoconverter.com//">Miro Video Converter</a><br> );
 	print INDEX qq($copyright\n</span></div>\n);
 	print INDEX "</body>\n</html>\n";
 	close(INDEX);
