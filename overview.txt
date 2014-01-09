@@ -1,0 +1,12 @@
+
+I used these perl scripts to geneate a gallery of photos, and videos
+based on webshow which generates the photo gallery, i have modified it to be a bootstrap website generated
+I also have webshowvideos which generates a gallery of screenshots which should open a html5 player (browser dependent)
+I also have webshowjplayer and webshowjwplayer which generates a page from a filelist to play the videos in a page using the jplayer(www.jplayer.org) and jwplayer (www.jwplayer.com) from longtail
+
+
+Todo
+----
+Less hardcoding of the html...
+More configuration/conditionals to determine what you want in the menu items
+and specifying if you want mp4, ogv or webm formats
