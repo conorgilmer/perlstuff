@@ -3,9 +3,10 @@
 use strict;
 
 	my $topPage = "jwindex.html";		# The name of the top-level page
-	my $fileno  = 0;
-
-	my ($title, $page, $description, $copyright, $filename, $nextname);
+	my $fileno  = 0; # number of videos
+	my $pageTitle = " Blah "; # read in from file
+	my $copyText = " Blah @ blah"; # read in from file?
+	my ($title, $page, $description, $copyright, $filename,$screenshot, $vtitle, $nextname);
 	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos, $displaycomma);
 	my ($wantOriginals, @lines);
 	my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
@@ -85,9 +86,9 @@ use strict;
 		}
 	open(INDEX,">$topPage") or die "Can't open $topPage\n";
 
-	# ----------------------------------------------------------------
-	# Write the beginning bit of HTML for the top-level thumbnail page
-	# ----------------------------------------------------------------
+	# ------------------------------
+	# Write the beginning bit of HTML
+	# ------------------------------
 	print INDEX <<TOP;
   
 <!DOCTYPE html
@@ -166,7 +167,7 @@ TOP
 	$photos = 0;
 	$displaycomma = ",";
 	for ($x = 0; $x < $fileno; ++$x) {
-		($filename,$description) = split(/\|/,$lines[$x]);
+		($filename,$screenshot,$vtitle,$description) = split(/\|/,$lines[$x]);
 		#print "$filename\n";	# UNCOMMENT TO SEE VISUAL PROGESS...
            $filename =~ s/\s+$//;	# trim off trailing whitespace
 		#print $x . " - " . $fileno. "\n";
@@ -176,16 +177,16 @@ TOP
 			$displaycomma = ",";		
 		}
 		#	print INDEX qq($filename</h2>$description</td></tr>\n);
-			print INDEX <<THUMBSTUFF;
+			print INDEX <<PLAYERSTUFF;
 
 			{
 			file: "videos/$filename.m4v",
-			image: "thumbsv/$description",
-			title: "Outside Church",
-			description: "Outside Church"
+			image: "thumbsv/$screenshot",
+			title: "$vtitle",
+			description: "$description"
  			}
 $displaycomma
-THUMBSTUFF
+PLAYERSTUFF
 		}
 
 

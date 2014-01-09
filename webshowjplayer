@@ -5,7 +5,7 @@ use strict;
 	my $topPage = "jindex.html";		# The name of the top-level page
 	my $fileno  = 0;
 
-	my ($title, $page, $description, $copyright, $filename, $nextname);
+	my ($title, $page, $description, $copyright, $filename, $screenshot, $vtitle, $nextname);
 	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos, $displaycomma);
 	my ($wantOriginals, @lines);
 	my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
@@ -129,7 +129,7 @@ TOP
 	$photos = 0;
 	$displaycomma = ",";
 	for ($x = 0; $x < $fileno; ++$x) {
-		($filename,$description) = split(/\|/,$lines[$x]);
+		($filename,$screenshot,$vtitle,$description) = split(/\|/,$lines[$x]);
 		#print "$filename\n";	# UNCOMMENT TO SEE VISUAL PROGESS...
            $filename =~ s/\s+$//;	# trim off trailing whitespace
 		#print $x . " - " . $fileno. "\n";
@@ -142,13 +142,13 @@ TOP
 			print INDEX <<THUMBSTUFF;
 
 			{
-			title:"Outside Church",
-			artist:"Neil and Daniela",
+			title:"$vtitle",
+			artist:"$description",
 			free:true,
 			m4v: "videos/$filename.m4v",
 			ogv: "videos/$filename.oggtheroa.ogv",
 			webmv: "videos/$filename.webmsd.webm",
-			poster:"thumbsv/$description"
+			poster:"thumbsv/$screenshot"
  			}
 $displaycomma
 THUMBSTUFF
