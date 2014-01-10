@@ -11,7 +11,7 @@ use strict;
 	my $fileno  = 0; # number of videos
 	my $pageTitle = " Blah "; # read in from file
 	my $copyText = " Blah @ blah"; # read in from file?
-	my ($title, $page, $description, $copyright, $filename,$screenshot, $vtitle, $nextname);
+	my ($title, $page, $description, $copyright, $filename,$screenshot, $vtitle);
 	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos, $displaycomma);
 	my ($wantOriginals, @lines);
 	my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );

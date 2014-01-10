@@ -9,8 +9,8 @@ use strict;
 	my $topPage = "jindex.html";		# The name of the top-level page
 	my $fileno  = 0;
 
-	my ($title, $page, $description, $copyright, $filename, $screenshot, $vtitle, $nextname);
-	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $photos, $displaycomma);
+	my ($title, $description, $copyright, $filename, $screenshot, $vtitle );
+	my ($x, $first, $last, $num, $mon, $mday, $year, $string, $displaycomma);
 	my ($wantOriginals, @lines);
 	my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
 
@@ -130,7 +130,6 @@ TOP
 	# won't have 'dead' backward/forward buttons.
 	# ----------------------------------------------
 	$num = 0;
-	$photos = 0;
 	$displaycomma = ",";
 	for ($x = 0; $x < $fileno; ++$x) {
 		($filename,$screenshot,$vtitle,$description) = split(/\|/,$lines[$x]);
