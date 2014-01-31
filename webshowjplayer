@@ -3,6 +3,8 @@
 # Page Details - Title of page and description an footer copyright stmt
 # video details (filename without extension - have m4v, ogv and webm formats) 
 # a screenshot, Title of video, and Owner/Author of video
+# jindex.html filename - careful of using index.html since it may overwite
+# another file
 
 use strict;
 
